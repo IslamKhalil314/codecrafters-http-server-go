@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 )
-const okResponse = "HTTP/1.1 200 OK\r\n%v\r\n\r\n%v\r\n"
+const okResponse = "HTTP/1.1 200 OK\r\n%v\r\n\r\n%v"
 const notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n"
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
