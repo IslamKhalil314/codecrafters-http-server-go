@@ -5,8 +5,10 @@ import (
 	// Uncomment this block to pass the first stage
 	"net"
 	"os"
+	"strings"
 )
-
+const okResponse = "HTTP/1.1 200 OK\r\n\r\n"
+const notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n"
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
@@ -39,7 +41,24 @@ func main() {
 
 func handleRequest(conn net.Conn) (n int , err error) {
 	defer conn.Close()
-	response := "HTTP/1.1 200 OK\r\n\r\n"
+	buffer := make([]byte , 1024) 
+	reqLen , err := conn.Read(buffer)
+	if(err != nil){
+		fmt.Println("err while reading req:" , err)
+	}
+	req := string(buffer[:reqLen])
+
+	lines := strings.Split(req,"\r\n")
+
+	path := strings.Split(lines[0]," ")[1]
+
+	var response string
+	if path == "/"{
+		response = okResponse
+	}else{
+		response = notFoundResponse
+	}
+
 	n , err = conn.Write([]byte(response))
 	return
 }
