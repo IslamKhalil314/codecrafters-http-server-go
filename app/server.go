@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 )
-const okResponse = "HTTP/1.1 200 OK\r\n\r\n"
+const okResponse = "HTTP/1.1 200 OK\r\n%v\r\n%v\r\n"
 const notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n"
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -42,6 +42,7 @@ func main() {
 func handleRequest(conn net.Conn) (n int , err error) {
 	defer conn.Close()
 	buffer := make([]byte , 1024) 
+	
 	reqLen , err := conn.Read(buffer)
 	if(err != nil){
 		fmt.Println("err while reading req:" , err)
@@ -52,9 +53,17 @@ func handleRequest(conn net.Conn) (n int , err error) {
 
 	path := strings.Split(lines[0]," ")[1]
 
+
 	var response string
 	if path == "/"{
 		response = okResponse
+	}else if strings.HasPrefix(path,"/echo"){
+		body := strings.Split(path,"/echo/")[1]
+		bodyLen := len(body)
+
+		headers := []string { "Content-Type: text/plain" , fmt.Sprintf("Content-Length: %v",bodyLen) }
+		response = fmt.Sprintf(okResponse , strings.Join(headers,"\r\n"),body)
+
 	}else{
 		response = notFoundResponse
 	}
