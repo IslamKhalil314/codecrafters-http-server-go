@@ -28,21 +28,20 @@ func main() {
 		}
 
 
-		okRes := handleRequest(connection)
-		
-		_ , err = connection.Write([]byte(okRes))
+		_ , err = handleRequest(connection)
 
 		if err != nil {
 			fmt.Println("Error handling request: ", err.Error())
 		}
-
-		connection.Close()
 	}
 }
 
 
-func handleRequest(conn net.Conn) (response string) {
-	 
-	response = "HTTP/1.1 200 OK\r\n\r\n"
+func handleRequest(conn net.Conn) (n int , err error) {
+	defer conn.Close()
+	response := "HTTP/1.1 200 OK\r\n\r\n"
+	n , err = conn.Write([]byte(response))
 	return
 }
+
+
