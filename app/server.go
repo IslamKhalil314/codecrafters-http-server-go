@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 )
-const okResponse = "HTTP/1.1 200 OK\r\n%v\r\n%v\r\n"
+const okResponse = "HTTP/1.1 200 OK\r\n%v\r\n\r\n%v\r\n"
 const notFoundResponse = "HTTP/1.1 404 Not Found\r\n\r\n"
 func main() {
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -63,7 +63,7 @@ func handleRequest(conn net.Conn) (n int , err error) {
 
 		headers := []string { "Content-Type: text/plain" , fmt.Sprintf("Content-Length: %v",bodyLen) }
 		response = fmt.Sprintf(okResponse , strings.Join(headers,"\r\n"),body)
-
+		fmt.Println(response)
 	}else{
 		response = notFoundResponse
 	}
