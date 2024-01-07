@@ -56,11 +56,11 @@ func handleRequest(conn net.Conn) (n int , err error) {
 
 	var response string
 	if path == "/"{
-		response = okResponse
+		response = fmt.Sprintf(okResponse,"","") 
 	}else if strings.HasPrefix(path,"/echo"){
 		body := strings.Split(path,"/echo/")[1]
 		bodyLen := len(body)
-		
+
 
 		headers := []string { "Content-Type: text/plain" , fmt.Sprintf("Content-Length: %v",bodyLen) }
 		response = fmt.Sprintf(okResponse , strings.Join(headers,"\r\n"),body)
