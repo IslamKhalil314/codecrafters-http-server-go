@@ -25,9 +25,15 @@ func parseRequest(request string) (req HttpRequest , err error){
 	requestParts := strings.Split(request,"\r\n\r\n")
 	headersAndFirstLine := strings.Split(requestParts[0],"\r\n") 
 	methodAndPath := strings.Split(headersAndFirstLine[0]," ")
+	fmt.Println("mmmmmm",methodAndPath)
 	method := methodAndPath[0]
 	path := methodAndPath[1]
-	headers := headersAndFirstLine[1:len(headersAndFirstLine) - 1]
+	fmt.Println("pppppppp",len(headersAndFirstLine))
+	headers := []string{}
+	if(len(headersAndFirstLine) > 1){
+		headers = headersAndFirstLine[1:]
+	}
+	
 	headersMap := make(map[string]string , len(headers)) 
 	for _ , v := range headers {
 		headerKeyValuePair := strings.Split(v,":")
@@ -77,7 +83,6 @@ func OK(conn net.Conn,params ...interface{}){
         }
 	}
 	response := stringfyResponse(res)
-	fmt.Println(response)
 	_ , err := conn.Write([]byte(response))
 	if(err != nil){
 		fmt.Println("err : ",err)
@@ -100,13 +105,12 @@ func NotFound(conn net.Conn,params ...interface{}){
         }
 	}
 	response := stringfyResponse(res)
-	fmt.Println(response)
 	_ , err := conn.Write([]byte(response))
 	if(err != nil){
 		fmt.Println("err : ",err)
 	}
 
-	
+
 }
 
 
@@ -148,7 +152,7 @@ func handleRequest(conn net.Conn) {
 		fmt.Println("err while reading req:" , err)
 	}
 	req := string(buffer[:reqLen])
-
+	fmt.Println("rrrrrrrrr",req)
 	request , err := parseRequest(req);
 
 	headers := map[string]string{}
