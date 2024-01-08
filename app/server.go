@@ -128,8 +128,9 @@ func main() {
 			continue
 		}
 
-
-		_ , err = handleRequest(connection)
+		
+		
+		go handleRequest(connection)
 
 		if err != nil {
 			fmt.Println("Error handling request: ", err.Error())
@@ -138,7 +139,7 @@ func main() {
 }
 
 
-func handleRequest(conn net.Conn) (n int , err error) {
+func handleRequest(conn net.Conn) {
 	buffer := make([]byte , 1024) 
 	reqLen , err := conn.Read(buffer)
 	if(err != nil){
