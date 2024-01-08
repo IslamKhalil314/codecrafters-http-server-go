@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	// Uncomment this block to pass the first stage
+	"flag"
 	"net"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -109,12 +111,14 @@ func NotFound(conn net.Conn,params ...interface{}){
 	if(err != nil){
 		fmt.Println("err : ",err)
 	}
-
-
 }
 
-
+var DIRFLAG = ""
 func main() {
+	var dirFlag = flag.String("directory", ".", "directory to serve files from")
+ 	flag.Parse()
+	DIRFLAG = *dirFlag
+	
 	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Println("Logs from your program will appear here!")
 
@@ -171,6 +175,24 @@ func handleRequest(conn net.Conn) {
 		headers["Content-Type"] = "text/plain"
 		headers["Content-Length"] = strconv.Itoa(bodyLen)
 		OK(conn,headers,userAgent)
+	}else if strings.HasPrefix(request.URL,"/files"){
+		fileName := strings.TrimPrefix(request.URL,"/files/")
+		filePath := filepath.Join(DIRFLAG,fileName)
+		_, err := os.Stat(filePath)
+		if os.IsNotExist(err) {
+			NotFound(conn)
+		}else{
+			
+			content, err := os.ReadFile(filePath)
+			if(err != nil){
+				fmt.Println("err: " , err)
+			}
+			body := string(content)
+			bodyLen := len(body)
+			headers["Content-Length"] = strconv.Itoa(bodyLen)
+			headers["Content-Type"] = "application/octet-stream"
+			OK(conn,headers,body)
+		}
 	}else{
 		NotFound(conn)
 	}
