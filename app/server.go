@@ -23,7 +23,7 @@ type HttpResponse struct {
 	Body    string
 }
 type HttpRequest struct {
-	Method  string
+	Method  methods.Method
 	URL     string
 	Headers map[string]string
 	Body    string
@@ -56,7 +56,7 @@ func parseRequest(request string) (req HttpRequest , err error){
 	}
 
 
-	req.Method = method
+	req.Method = methods.Method(method)
 	req.URL = path
 	req.Body = body
 	req.Headers = headersMap
@@ -205,7 +205,7 @@ func handleRequest(conn net.Conn) {
 	}else if strings.HasPrefix(request.URL,"/files"){
 		fileName := strings.TrimPrefix(request.URL,"/files/")
 		filePath := filepath.Join(DIRFLAG,fileName)
-		if request.Method == string(methods.GET){
+		if request.Method == methods.GET{
 			_, err := os.Stat(filePath)
 			if os.IsNotExist(err) {
 				NotFound(conn)
@@ -221,7 +221,7 @@ func handleRequest(conn net.Conn) {
 				headers["Content-Type"] = "application/octet-stream"
 				OK(conn,headers,body)
 			}
-		}else if request.Method == string(methods.POST){
+		}else if request.Method == methods.POST{
 			content := request.Body;
 			f, err := os.Create(filePath)
 			 if err != nil {

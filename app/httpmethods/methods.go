@@ -1,8 +1,8 @@
 package methods
 
-type method string
+type Method string
 
 const (
-	GET  method = "GET"
-	POST method = "POST"
+	GET  Method = "GET"
+	POST Method = "POST"
 )
