@@ -3,13 +3,18 @@ package main
 import (
 	"fmt"
 	// Uncomment this block to pass the first stage
+
 	"flag"
 	"net"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	methods "github.com/codecrafters-io/http-server-starter-go/app/httpmethods"
 )
+
+
 
 type HttpResponse struct {
 	StatusCode int
@@ -178,20 +183,33 @@ func handleRequest(conn net.Conn) {
 	}else if strings.HasPrefix(request.URL,"/files"){
 		fileName := strings.TrimPrefix(request.URL,"/files/")
 		filePath := filepath.Join(DIRFLAG,fileName)
-		_, err := os.Stat(filePath)
-		if os.IsNotExist(err) {
-			NotFound(conn)
-		}else{
-			
-			content, err := os.ReadFile(filePath)
-			if(err != nil){
-				fmt.Println("err: " , err)
+		if request.Method == string(methods.GET){
+			_, err := os.Stat(filePath)
+			if os.IsNotExist(err) {
+				NotFound(conn)
+			}else{
+				
+				content, err := os.ReadFile(filePath)
+				if(err != nil){
+					fmt.Println("err: " , err)
+				}
+				body := string(content)
+				bodyLen := len(body)
+				headers["Content-Length"] = strconv.Itoa(bodyLen)
+				headers["Content-Type"] = "application/octet-stream"
+				OK(conn,headers,body)
 			}
-			body := string(content)
-			bodyLen := len(body)
-			headers["Content-Length"] = strconv.Itoa(bodyLen)
-			headers["Content-Type"] = "application/octet-stream"
-			OK(conn,headers,body)
+		}else if request.Method == string(methods.POST){
+			content := request.Body;
+			f, err := os.Create(filePath)
+			 if err != nil {
+				fmt.Println(err)
+			}
+			 _ , err = f.WriteString(content)
+			if err != nil {
+				fmt.Println(err)
+			}
+			OK(conn)
 		}
 	}else{
 		NotFound(conn)
