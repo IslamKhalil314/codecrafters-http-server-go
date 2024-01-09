@@ -118,6 +118,28 @@ func NotFound(conn net.Conn,params ...interface{}){
 	}
 }
 
+func Created(conn net.Conn,params ...interface{}){
+	defer conn.Close()
+	var res HttpResponse 
+	res.StatusCode = 201;
+	res.StatusText = "Created"
+	for index, val := range params{
+		switch index {
+            case 0: //the first mandatory param
+               headers , _ := val.(map[string]string)
+			   res.Headers = headers
+            case 1: // age is optional param
+                body, _ := val.(string)
+				res.Body = body
+        }
+	}
+	response := stringfyResponse(res)
+	_ , err := conn.Write([]byte(response))
+	if(err != nil){
+		fmt.Println("err : ",err)
+	}
+}
+
 var DIRFLAG = ""
 func main() {
 	var dirFlag = flag.String("directory", ".", "directory to serve files from")
@@ -209,7 +231,7 @@ func handleRequest(conn net.Conn) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			OK(conn)
+			Created(conn)
 		}
 	}else{
 		NotFound(conn)
